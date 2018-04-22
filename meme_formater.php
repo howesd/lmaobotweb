@@ -11,8 +11,20 @@
 	  <link rel="shortcut icon" type="image/x-icon" href="./assets/LMAO_logo.jpg"/>
 
 		<style>
-			body {font-family: "Lato", sans-serif}
-			.smallScreenNav {display: none}
+			body {
+				font-family: "Lato", sans-serif
+			}
+
+			.smallScreenNav {
+				display: none
+			}
+
+			.canvas-container {
+				margin: 2%;
+				display: block;
+		    margin-left: auto;
+		    margin-right: auto;
+			}
 		</style>
 	</head>
 	<body>
@@ -36,9 +48,9 @@
 	  </div>
 
 	  <!-- Page content -->
-	  <div class="w3-content" style="max-width:2000px;margin-top:46px">
+	  <div class="w3-content" style="max-width: 2000px; margin-top: 46px; text-align: center; align-content: center;">
 
-
+			<canvas style="margin: 5px; background-color: black;" id="master_canvas"><b>HTML Canvas isn't supported...</b></canvas>
 
 		<!-- End Page Content -->
 		</div>
@@ -65,8 +77,13 @@
 
 	<script src="./js/libs/fabric.min.js"></script>
 	<script>
+		// Setup global variables
+		var canvas;
 
-
+		// Setup Fabric.js on page load
+		window.onload = function () {
+			canvas = new fabric.Canvas('master_canvas');
+		}
 
 	</script>
 
