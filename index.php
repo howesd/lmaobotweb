@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="./css/libs/w3.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <link rel="shortcut icon" type="image/x-icon" href="lmaobot.jpg"/>
+  <link rel="shortcut icon" type="image/x-icon" href="./assets/LMAO_logo.jpg"/>
 </head>
 <style>
 body {font-family: "Lato", sans-serif}
@@ -37,7 +37,7 @@ body {font-family: "Lato", sans-serif}
   <div class="w3-content" style="max-width:2000px;margin-top:46px">
 
     <div class="w3-container w3-content w3-center w3-padding-64" style="max-width:800px" id="band">
-     <img src="lmaobot.jpg" alt="Image of LMAOBot" style="border-radius: 50%; width: 30%; height: 30%">
+     <img src="./assets/LMAO_logo.jpg" alt="Image of LMAOBot" style="border-radius: 50%; width: 30%; height: 30%">
      <h2 class="w3-wide">LMAOBOT</h2>
      <p class="w3-opacity"><i>A dank Discord bot with an even danker soundboard.</i></p>
      <p class="w3-justify w3-center">LMAOBot is a bot like no other. LMAOBot comes equipped with a dank soundboard to which you can upload your own custom sounds from YouTube to. Other users can access your sounds, from anywhere in Discord. There are tonnes of fun commands to use, ranging from random memes from reddit to checking how gay and dank you are, to trolling your friends with earrape sounds, LMAOBot has it all.</p>
