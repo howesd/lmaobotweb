@@ -6,7 +6,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="LMAOBot is an innovative Discord bot equipped with a dank soundboard. You can use Discord's chat function to give lmaobot commands, to which the bot sends a response. lmaobot uses the lmao prefix.">
-  <link rel="stylesheet" href="w3.css">
+  <link rel="stylesheet" href="./css/libs/w3.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
   <link rel="shortcut icon" type="image/x-icon" href="lmaobot.jpg"/>
@@ -41,7 +41,7 @@ body {font-family: "Lato", sans-serif}
      <h2 class="w3-wide">LMAOBOT</h2>
      <p class="w3-opacity"><i>A dank Discord bot with an even danker soundboard.</i></p>
      <p class="w3-justify w3-center">LMAOBot is a bot like no other. LMAOBot comes equipped with a dank soundboard to which you can upload your own custom sounds from YouTube to. Other users can access your sounds, from anywhere in Discord. There are tonnes of fun commands to use, ranging from random memes from reddit to checking how gay and dank you are, to trolling your friends with earrape sounds, LMAOBot has it all.</p>
-     
+
      <img src="https://discordbots.org/api/widget/398413630149885952.svg?sanitize=true" alt="Statistics">
 
      <div class="w3-row w3-padding-32">
@@ -147,7 +147,7 @@ body {font-family: "Lato", sans-serif}
   <td>dankrate</td>
   <td>rates you on a scale from 1-100% dank.</td>
   <td>lmao dankrate</td>
-  <tr>   
+  <tr>
     <td>gayrate</td>
     <td>rates you on a scale from 1-100% gay.</td>
     <td>lmao gayrate</td>
@@ -326,12 +326,12 @@ function carousel() {
   var i;
   var x = document.getElementsByClassName("smallScreenNav");
   for (i = 0; i < x.length; i++) {
-   x[i].style.display = "none";  
+   x[i].style.display = "none";
  }
  myIndex++;
- if (myIndex > x.length) {myIndex = 1}    
-  x[myIndex-1].style.display = "block";  
-setTimeout(carousel, 4000);    
+ if (myIndex > x.length) {myIndex = 1}
+  x[myIndex-1].style.display = "block";
+setTimeout(carousel, 4000);
 }
 
 
@@ -340,7 +340,7 @@ function myFunction() {
   var x = document.getElementById("smallScreenNav");
   if (x.className.indexOf("w3-show") == -1) {
     x.className += " w3-show";
-  } else { 
+  } else {
     x.className = x.className.replace(" w3-show", "");
   }
 }
