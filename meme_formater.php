@@ -20,10 +20,20 @@
 			}
 
 			.canvas-container {
-				margin: 2%;
+				margin: 1%;
 				display: block;
 		    margin-left: auto;
 		    margin-right: auto;
+			}
+
+			.toolbar {
+				margin: 1%;
+			}
+
+			.toolbar input, .toolbar select {
+				margin: 2.5px;
+				padding: 5px;
+				border-radius: 10px;
 			}
 		</style>
 	</head>
@@ -47,13 +57,31 @@
 	    <a href="#" class="w3-bar-item w3-button w3-padding-large">MEME FORMATER</a>
 	  </div>
 
-	  <!-- Page content -->
+	  <!-- Start Page content -->
 	  <div class="w3-content" style="max-width: 2000px; margin-top: 46px; text-align: center; align-content: center;">
 
-			<canvas style="margin: 5px; background-color: black;" id="master_canvas"><b>HTML Canvas isn't supported...</b></canvas>
+			<canvas style="margin: 5px; background-color: black;" width="800" height="600" id="master_canvas"><b>HTML Canvas isn't supported...</b></canvas>
 
-		<!-- End Page Content -->
+			<form class="toolbar">
+				<select name="add_type">
+					<option value="square">
+						Square
+					</option>
+					<option value="circle">
+						Circle
+					</option>
+				</select>
+				<br />
+				<input type="button" value="Add Text" name="add_text" />
+				<input type="button" value="Add Image" name="add_image" />
+				<br />
+				<input type="button" value="Export" name="export_format" />
+				<input type="file" style="display: none;" name="format_file" />
+				<input type="button" value="Import" onclick="format_file.click();" name="import_format" />
+			</form>
+
 		</div>
+		<!-- End Page Content -->
 
 	<!-- Footer -->
 	<footer class="w3-container w3-padding-64 w3-center w3-opacity w3-light-grey w3-xlarge">
