@@ -117,9 +117,29 @@
 
 		// Setup Fabric.js on page load
 		window.onload = function () {
+			// Setup Canvas
 			canvas = new fabric.Canvas('master_canvas');
 			canvas.setBackgroundColor('black', canvas.renderAll.bind(canvas));
+
+		  // Setup resize
+		  window.addEventListener("resize", resize_canvas);
+		  resize_canvas();
 		}
+
+
+		/**
+		 * Resize Canvas and it's content.
+		 * @return {undefined} Returns nothing.
+		 */
+		function resize_canvas() {
+		  // Resize canvas
+			canvas.setWidth(window.innerWidth);
+			canvas.setHeight(window.innerHeight);
+			canvas.calcOffset();
+
+			canvas.renderAll();
+		}
+
 
 		/**
 		 * Load background for the Canvas.
