@@ -71,7 +71,7 @@
 				<input type="button" onclick="image_file.click();" value="Open image..." />
 				<br />
 				<select name="add_type">
-					<option value="square">
+					<option value="rectangle">
 						Square
 					</option>
 					<option value="circle">
@@ -79,8 +79,8 @@
 					</option>
 				</select>
 				<br />
-				<input type="button" value="Add Text" name="add_text" />
-				<input type="button" value="Add Image" name="add_image" />
+				<input type="button" onclick="new new_step('text', add_type.value)" value="Add Text" name="add_text" />
+				<input type="button" onclick="new new_step('image', add_type.value)" value="Add Image" name="add_image" />
 				<br />
 				<input type="button" value="Export" name="export_format" />
 				<input type="file" style="display: none;" name="format_file" />
@@ -114,6 +114,7 @@
 	<script>
 		// Setup global variables
 		var canvas;
+		var steps = [];
 
 		// Setup Fabric.js on page load
 		window.onload = function () {
@@ -121,57 +122,134 @@
 			canvas = new fabric.Canvas('master_canvas');
 			canvas.setBackgroundColor('black', canvas.renderAll.bind(canvas));
 
-			canvas.on('mouse:down', function(opt) {
-			  if (opt.e.ctrlKey) {
-			    this.isDragging = true;
-			    this.selection = false;
+			canvas.on({
+				// Desktop/Keyboard/Mouse events
+				'mouse:down': function(opt) {
+				  if (opt.e.ctrlKey) {
+				    this.isDragging = true;
+				    this.selection = false;
 
-			    this.lastPosX = opt.e.clientX;
-			    this.lastPosY = opt.e.clientY;
-			  }
-			});
+				    this.lastPosX = opt.e.clientX;
+				    this.lastPosY = opt.e.clientY;
+				  }
+				},
+				'mouse:move': function(opt) {
+				  if (this.isDragging) {
+				    this.viewportTransform[4] += opt.e.clientX - this.lastPosX;
+				    this.viewportTransform[5] += opt.e.clientY - this.lastPosY;
 
-			canvas.on('mouse:move', function(opt) {
-			  if (this.isDragging) {
-			    this.viewportTransform[4] += opt.e.clientX - this.lastPosX;
-			    this.viewportTransform[5] += opt.e.clientY - this.lastPosY;
+				    canvas.requestRenderAll();
 
-			    this.requestRenderAll();
+				    this.lastPosX = opt.e.clientX;
+				    this.lastPosY = opt.e.clientY;
+				  }
+				},
+				'mouse:up': function(opt) {
+				  this.isDragging = false;
+				  this.selection = true;
+				},
+				'mouse:wheel': function(opt) {
+				  var delta = opt.e.deltaY;
+				  var pointer = canvas.getPointer(opt.e);
 
-			    this.lastPosX = opt.e.clientX;
-			    this.lastPosY = opt.e.clientY;
-			  }
-			});
+				  // Zoom amount
+				  var zoom;
+				  if (opt.e.ctrlKey) {
+				    zoom = canvas.getZoom() - delta / 25;
+				  } else {
+				    zoom = canvas.getZoom() - delta / 75;
+				  }
 
-			canvas.on('mouse:up', function(opt) {
-			  this.isDragging = false;
-			  this.selection = true;
-			});
+				  // Limit zoom
+				  zoom = Math.min(20, Math.max(0.01, zoom));
 
-			canvas.on('mouse:wheel', function(opt) {
-			  var delta = opt.e.deltaY;
-			  var pointer = canvas.getPointer(opt.e);
+				  canvas.zoomToPoint({
+				    x: opt.e.offsetX,
+				    y: opt.e.offsetY
+				  }, zoom);
 
-				// Zoom amount
-				var zoom;
-				if (opt.e.ctrlKey) {
-				  zoom = canvas.getZoom() - delta / 25;
-				} else {
-					zoom = canvas.getZoom() - delta / 75;
+				  opt.e.preventDefault();
+				  opt.e.stopPropagation();
+				},
+				// Mobile/Touch events
+				'touch:gesture': function(opt) {
+				  if (opt.e.touches && opt.e.touches.length == 2) {
+				    pausePanning = true;
+				    var point = new fabric.Point(opt.self.x, opt.self.y);
+				    if (opt.self.state == "start") {
+				      zoomStartScale = self.canvas.getZoom();
+				    }
+				    var delta = zoomStartScale * opt.self.scale;
+				    self.canvas.zoomToPoint(point, delta);
+				    pausePanning = false;
+				  }
+				},
+				'object:selected': function() {
+				  pausePanning = true;
+				},
+				'selection:cleared': function() {
+				  pausePanning = false;
+				},
+				'touch:drag': function(opt) {
+				  if (pausePanning == false && undefined != opt.e.layerX && undefined != opt.e.layerY) {
+				    currentX = opt.e.layerX;
+				    currentY = opt.e.layerY;
+				    xChange = currentX - lastX;
+				    yChange = currentY - lastY;
+
+				    if ((Math.abs(currentX - lastX) <= 50) && (Math.abs(currentY - lastY) <= 50)) {
+				      var delta = new fabric.Point(xChange, yChange);
+				      canvas.relativePan(delta);
+				    }
+
+				    lastX = opt.e.layerX;
+				    lastY = opt.e.layerY;
+				  }
 				}
-
-				// Limit zoom
-				zoom = Math.min(20, Math.max(0.01, zoom));
-
-				canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
-
-			  opt.e.preventDefault();
-			  opt.e.stopPropagation();
 			});
 
 		  // Setup resize
 		  window.addEventListener("resize", resize_canvas);
 		  resize_canvas();
+		}
+
+
+		/**
+		 * Generate a random RGB color.
+		 * @return {Array} Returns a Array, containing three integers, representing a random RGB color.
+		 */
+		function randomRGB() {
+		  return [Math.floor(Math.random() * 255), Math.floor(Math.random() * 255), Math.floor(Math.random() * 255)];
+		}
+
+
+		/**
+		 * Given a RGB object return a RGB string.
+		 * @param {Array} [rgb] Array representing RGB; [ Red, Green, Blue ].
+		 * @return {String} Returns a string representing a RGB color.
+		 */
+		function stringRGB(rgb) {
+		  return "rgb(" + Math.floor(rgb[0]) + "," + Math.floor(rgb[1]) + "," + Math.floor(rgb[2]) + ")";
+		}
+
+
+		/**
+		 * Given a RGB object and alpha return a RGBA string.
+		 * @param {Array} [rgb] Array representing RGB; [ Red, Green, Blue ].
+		 * @param {Integer} [alpha] Alpha amount; Range: 0 - 1.
+		 * @return {String} Returns a string representing a RGBA color.
+		 */
+		function stringRGBA(rgb, alpha) {
+		  // Make sure alpha is valid
+		  if (alpha == undefined) {
+		    alpha = 1;
+		  } else if (alpha < 0) {
+		    alpha = 0;
+		  } else if (alpha > 1) {
+		    alpha = 1;
+		  }
+
+		  return "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "," + alpha + ")";
 		}
 
 
@@ -188,17 +266,17 @@
 			if (canvas.backgroundImage !== null) {
 				canvas.backgroundImage.left = canvas.width / 2;
 				canvas.backgroundImage.top = canvas.height / 2;
-				if (canvas.width < canvas.height) {
-					canvas.backgroundImage.scaleToWidth(canvas.width);
+				if (canvas.width < canvas.height * 1.30) {
+					canvas.backgroundImage.scaleToWidth(canvas.width * 0.75);
 				} else {
-					canvas.backgroundImage.scaleToHeight(canvas.height);
+					canvas.backgroundImage.scaleToHeight(canvas.height * 0.75);
 				}
 			}
 
 			// Fix Canvas's content
 			canvas.calcOffset();
 
-			canvas.renderAll();
+			canvas.requestRenderAll();
 		}
 
 
@@ -219,15 +297,15 @@
 					image.top = canvas.height / 2;
 
 					// Resize Image to fit Canvas
-					if (canvas.width < canvas.height) {
-						image.scaleToWidth(canvas.width);
+					if (canvas.width < canvas.height * 1.30) {
+						image.scaleToWidth(canvas.width * 0.75);
 					} else {
-						image.scaleToHeight(canvas.height);
+						image.scaleToHeight(canvas.height * 0.75);
 					}
 
 					// Set Canvas background
 					canvas.setBackgroundImage(image);
-					canvas.renderAll();
+					canvas.requestRenderAll();
 				});
 			});
 
@@ -235,6 +313,66 @@
 			if (image) {
 				reader.readAsDataURL(image)
 			}
+		 }
+
+
+ 		/**
+ 		 * Create a Step in Canvas.
+ 		 * @param {string} [step_type] Type of Step to create; default: text - options: text, image.
+ 		 * @param {string} [step_shape] Shape of Step; default: rectangle - options: rectangle, circle.
+ 		 * @return {Object} Returns instance of step.
+ 		 */
+ 		 function new_step(step_type, step_shape) {
+		 	// var circle = new fabric.Circle({
+			//   left: 100,
+			//   top: 100,
+			//   radius: 50,
+			//   fill: stringRGB(randomRGB())
+			// });
+			// canvas.add(circle);
+			// circle.center();
+
+			this.id = steps.push(this) - 1;
+			this.type = step_type;
+			this.shape = step_shape;
+			this.color = randomRGB();
+
+			this.content = new fabric.Group();
+
+			if (step_shape === 'rectangle') {
+				this.content.addWithUpdate(new fabric.Rect({
+					originX: 'center',
+					originY: 'center',
+					width: 190,
+					height: 120,
+					stroke: stringRGB(this.color),
+					strokeWidth: 3
+				}));
+			} else if (step_shape === 'circle') {
+				this.content.addWithUpdate(new fabric.Circle({
+					originX: 'center',
+					originY: 'center',
+					radius: 100,
+					stroke: stringRGB(this.color),
+					strokeWidth: 3
+				}));
+			}
+
+			this.content.addWithUpdate(new fabric.Text(this.id + '\n' + step_type, {
+				minScaleLimit: 1,
+				originX: 'center',
+				originY: 'center',
+				fontSize: 12,
+				textAlign: 'center',
+				fill: 'rgb(255, 255, 255)'
+			}));
+
+			canvas.add(this.content);
+			this.content.center();
+
+			canvas.requestRenderAll();
+
+			return this;
 		 }
 
 	</script>
