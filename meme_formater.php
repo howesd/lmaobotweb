@@ -132,9 +132,22 @@
 		 * @return {undefined} Returns nothing.
 		 */
 		function resize_canvas() {
-		  // Resize canvas
+		  // Resize Canvas
 			canvas.setWidth(window.innerWidth - 100);
 			canvas.setHeight(window.innerHeight - 100);
+
+			// Fix background image for Canvas
+			if (canvas.backgroundImage !== null) {
+				canvas.backgroundImage.left = canvas.width / 2;
+				canvas.backgroundImage.top = canvas.height / 2;
+				if (canvas.width < canvas.height) {
+					canvas.backgroundImage.scaleToWidth(canvas.width);
+				} else {
+					canvas.backgroundImage.scaleToHeight(canvas.height);
+				}
+			}
+
+			// Fix Canvas's content
 			canvas.calcOffset();
 
 			canvas.renderAll();
@@ -158,7 +171,11 @@
 					image.top = canvas.height / 2;
 
 					// Resize Image to fit Canvas
-					image.scaleToWidth(canvas.width);
+					if (canvas.width < canvas.height) {
+						image.scaleToWidth(canvas.width);
+					} else {
+						image.scaleToHeight(canvas.height);
+					}
 
 					// Set Canvas background
 					canvas.setBackgroundImage(image);
