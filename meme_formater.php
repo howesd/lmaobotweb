@@ -82,9 +82,9 @@
 				<input type="button" onclick="new new_step('text', add_type.value)" value="Add Text" name="add_text" />
 				<input type="button" onclick="new new_step('image', add_type.value)" value="Add Image" name="add_image" />
 				<br />
-				<input type="button" value="Export" name="export_format" />
-				<input type="file" style="display: none;" name="format_file" />
-				<input type="button" value="Import" onclick="format_file.click();" name="import_format" />
+				<input type="button" onclick="export_format();" value="Export" name="export" />
+				<input type="file" onchange="import_format(this.files[0]);" style="display: none;" name="format_file" />
+				<input type="button" value="Import" onclick="format_file.click();" name="import" />
 			</form>
 
 		</div>
@@ -114,6 +114,10 @@
 	<script>
 		// Setup global variables
 		var canvas;
+		var meme = {
+			name: '',
+			data: undefined
+		};
 		var steps = [];
 
 		// Setup Fabric.js on page load
@@ -215,6 +219,39 @@
 
 
 		/**
+		 * Exports current Steps into a format.
+		 * @return {undefined} Returns nothing.
+		 */
+		function export_format() {
+			if (meme.data === undefined) return alert('You haven\'t loaded a image!');
+
+			var format = {
+				image: meme.data,
+				steps: []
+			}
+			for (var step in steps) {
+				format.steps.push(steps[step].export());
+			}
+
+		  // Setting up a DOM is necessary for downloads in some Browsers
+		  var download = document.createElement('a');
+		  download.setAttribute('href', 'data:text/JSON,' + JSON.stringify(format));
+		  download.setAttribute('download', meme.name + '.json');
+		  document.body.appendChild(download);
+		  download.click();
+		  download.remove();
+		}
+
+
+		/**
+		 * Imports Steps from a format.
+		 * @param {File} [format_file] File that's a format; .json.
+		 * @return {undefined} Returns nothing.
+		 */
+		function import_format(format_file) {}
+
+
+		/**
 		 * Generate a random RGB color.
 		 * @return {Array} Returns a Array, containing three integers, representing a random RGB color.
 		 */
@@ -229,7 +266,7 @@
 		 * @return {String} Returns a string representing a RGB color.
 		 */
 		function stringRGB(rgb) {
-		  return "rgb(" + Math.floor(rgb[0]) + "," + Math.floor(rgb[1]) + "," + Math.floor(rgb[2]) + ")";
+		  return 'rgb(' + Math.floor(rgb[0]) + ',' + Math.floor(rgb[1]) + ',' + Math.floor(rgb[2]) + ')';
 		}
 
 
@@ -249,7 +286,7 @@
 		    alpha = 1;
 		  }
 
-		  return "rgb(" + rgb[0] + "," + rgb[1] + "," + rgb[2] + "," + alpha + ")";
+		  return 'rgb(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + alpha + ')';
 		}
 
 
@@ -285,14 +322,18 @@
 		 * @param {image_file} [image] A image file.
 		 * @return {undefined} Returns nothing.
 		 */
-		 function load_background(image) {
+		 function load_background(image_file) {
 		 	var reader  = new FileReader();
 
 			// Once file has been read do the following
-			reader.addEventListener("load", function () {
+			reader.addEventListener('load', function () {
+				// Setup Meme info
+				meme.name = image_file.name;
+				meme.data = reader.result.replace(/^data:image\/(png|jpg);base64,/, "");
+
 				new fabric.Image.fromURL(reader.result, function (image) {
 					// Set Image to center
-					image.originX = image.originY = "center";
+					image.originX = image.originY = 'center';
 					image.left = canvas.width / 2;
 					image.top = canvas.height / 2;
 
@@ -310,8 +351,8 @@
 			});
 
 			// Read image if any given
-			if (image) {
-				reader.readAsDataURL(image)
+			if (image_file) {
+				reader.readAsDataURL(image_file)
 			}
 		 }
 
@@ -323,21 +364,16 @@
  		 * @return {Object} Returns instance of step.
  		 */
  		 function new_step(step_type, step_shape) {
-		 	// var circle = new fabric.Circle({
-			//   left: 100,
-			//   top: 100,
-			//   radius: 50,
-			//   fill: stringRGB(randomRGB())
-			// });
-			// canvas.add(circle);
-			// circle.center();
-
 			this.id = steps.push(this) - 1;
 			this.type = step_type;
 			this.shape = step_shape;
 			this.color = randomRGB();
 
-			this.content = new fabric.Group();
+			this.content = new fabric.Group([], {
+				lockScalingFlip: true,
+				fill: 'rgba(0, 0, 0, 0)',
+				backgroundColor: 'rgba(0, 0, 0, 0)'
+			});
 
 			if (step_shape === 'rectangle') {
 				this.content.addWithUpdate(new fabric.Rect({
@@ -346,7 +382,9 @@
 					width: 190,
 					height: 120,
 					stroke: stringRGB(this.color),
-					strokeWidth: 3
+					strokeWidth: 3,
+					fill: 'rgba(0, 0, 0, 0)',
+					backgroundColor: 'rgba(0, 0, 0, 0)'
 				}));
 			} else if (step_shape === 'circle') {
 				this.content.addWithUpdate(new fabric.Circle({
@@ -354,23 +392,41 @@
 					originY: 'center',
 					radius: 100,
 					stroke: stringRGB(this.color),
-					strokeWidth: 3
+					strokeWidth: 3,
+					fill: 'rgba(0, 0, 0, 0)',
+					backgroundColor: 'rgba(0, 0, 0, 0)'
 				}));
 			}
 
-			this.content.addWithUpdate(new fabric.Text(this.id + '\n' + step_type, {
+			this.content.addWithUpdate(new fabric.Text((this.id + 1) + '\n' + step_type, {
 				minScaleLimit: 1,
 				originX: 'center',
 				originY: 'center',
 				fontSize: 12,
 				textAlign: 'center',
-				fill: 'rgb(255, 255, 255)'
+				fill: 'rgb(255, 255, 255)',
+				backgroundColor: 'rgba(0, 0, 0, 0)'
 			}));
 
 			canvas.add(this.content);
 			this.content.center();
 
 			canvas.requestRenderAll();
+
+			this.export = function () {
+				return {
+					type: this.type,
+					shape: this.shape,
+					size: [
+						Math.floor(this.content._objects[0].width),
+						Math.floor(this.content._objects[0].height)
+					],
+					position: [
+						Math.floor(this.content.left),
+						Math.floor(this.content.top)
+					]
+				};
+			}
 
 			return this;
 		 }
