@@ -15,6 +15,10 @@
 				font-family: "Lato", sans-serif
 			}
 
+			canvas {
+				box-shadow: rgb(0, 0, 0) 0px 0px 10px;
+			}
+
 			.smallScreenNav {
 				display: none
 			}
@@ -60,9 +64,12 @@
 	  <!-- Start Page content -->
 	  <div class="w3-content" style="max-width: 2000px; margin-top: 46px; text-align: center; align-content: center;">
 
-			<canvas style="margin: 5px; background-color: black;" width="800" height="600" id="master_canvas"><b>HTML Canvas isn't supported...</b></canvas>
+			<canvas style="margin: 5px;" width="800" height="600" id="master_canvas"><b>HTML Canvas isn't supported...</b></canvas>
 
 			<form class="toolbar">
+				<input type="file" onchange="load_background(this.files[0]);" accept=".jpg, .png" style="display: none;" name="image_file" />
+				<input type="button" onclick="image_file.click();" value="Open image..." />
+				<br />
 				<select name="add_type">
 					<option value="square">
 						Square
@@ -111,7 +118,39 @@
 		// Setup Fabric.js on page load
 		window.onload = function () {
 			canvas = new fabric.Canvas('master_canvas');
+			canvas.setBackgroundColor('black', canvas.renderAll.bind(canvas));
 		}
+
+		/**
+		 * Load background for the Canvas.
+		 * @param {image_file} [image] A image file.
+		 * @return {undefined} Returns nothing.
+		 */
+		 function load_background(image) {
+		 	var reader  = new FileReader();
+
+			// Once file has been read do the following
+			reader.addEventListener("load", function () {
+				new fabric.Image.fromURL(reader.result, function (image) {
+					// Set Image to center
+					image.originX = image.originY = "center";
+					image.left = canvas.width / 2;
+					image.top = canvas.height / 2;
+
+					// Resize Image to fit Canvas
+					image.scaleToWidth(canvas.width);
+
+					// Set Canvas background
+					canvas.setBackgroundImage(image);
+					canvas.renderAll();
+				});
+			});
+
+			// Read image if any given
+			if (image) {
+				reader.readAsDataURL(image)
+			}
+		 }
 
 	</script>
 
