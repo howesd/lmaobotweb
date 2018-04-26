@@ -133,8 +133,8 @@
 		 */
 		function resize_canvas() {
 		  // Resize canvas
-			canvas.setWidth(window.innerWidth);
-			canvas.setHeight(window.innerHeight);
+			canvas.setWidth(window.innerWidth - 100);
+			canvas.setHeight(window.innerHeight - 100);
 			canvas.calcOffset();
 
 			canvas.renderAll();
