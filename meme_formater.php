@@ -121,6 +121,54 @@
 			canvas = new fabric.Canvas('master_canvas');
 			canvas.setBackgroundColor('black', canvas.renderAll.bind(canvas));
 
+			canvas.on('mouse:down', function(opt) {
+			  if (opt.e.ctrlKey) {
+			    this.isDragging = true;
+			    this.selection = false;
+
+			    this.lastPosX = opt.e.clientX;
+			    this.lastPosY = opt.e.clientY;
+			  }
+			});
+
+			canvas.on('mouse:move', function(opt) {
+			  if (this.isDragging) {
+			    this.viewportTransform[4] += opt.e.clientX - this.lastPosX;
+			    this.viewportTransform[5] += opt.e.clientY - this.lastPosY;
+
+			    this.requestRenderAll();
+
+			    this.lastPosX = opt.e.clientX;
+			    this.lastPosY = opt.e.clientY;
+			  }
+			});
+
+			canvas.on('mouse:up', function(opt) {
+			  this.isDragging = false;
+			  this.selection = true;
+			});
+
+			canvas.on('mouse:wheel', function(opt) {
+			  var delta = opt.e.deltaY;
+			  var pointer = canvas.getPointer(opt.e);
+
+				// Zoom amount
+				var zoom;
+				if (opt.e.ctrlKey) {
+				  zoom = canvas.getZoom() - delta / 25;
+				} else {
+					zoom = canvas.getZoom() - delta / 75;
+				}
+
+				// Limit zoom
+				zoom = Math.min(20, Math.max(0.01, zoom));
+
+				canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
+
+			  opt.e.preventDefault();
+			  opt.e.stopPropagation();
+			});
+
 		  // Setup resize
 		  window.addEventListener("resize", resize_canvas);
 		  resize_canvas();
